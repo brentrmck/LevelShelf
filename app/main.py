@@ -47,3 +47,11 @@ def create_game(game: GameCreate, db: Session = Depends(get_db)):
 @app.get("/games")
 def list_games(db: Session = Depends(get_db)):
     return db.query(Game).all()
+
+
+@app.get("/games/{game_id}")
+def get_game(game_id: int, db: Session = Depends(get_db)):
+    game = db.query(Game).filter(Game.id == game_id).first()
+    if not game:
+        raise HTTPException(status_code=404, detail="Game not found")
+    return game
