@@ -17,6 +17,14 @@ class GameCreate(BaseModel):
     rating: float | None = None
 
 
+class GameUpdate(BaseModel):
+    title: str | None = None
+    platform: str | None = None
+    genre: str | None = None
+    release: str | None = None
+    rating: float | None = None
+
+
 def get_db():
     db = SessionLocal()
     try:
@@ -57,12 +65,12 @@ def get_game(game_id: int, db: Session = Depends(get_db)):
     return game
 
 
-@app.put("/games/{game_id}")
-def update_game(game_id: int, updates: GameCreate, db: Session = Depends(get_db)):
+@app.patch("/games/{game_id}")
+def update_game(game_id: int, updates: GameUpdate, db: Session = Depends(get_db)):
     game = db.query(Game).filter(Game.id == game_id).first()
     if not game:
         raise HTTPException(status_code=404, detail="Game not found")
-    for key, value in updates.model_dump().items():
+    for key, value in updates.model_dump(exclude_unset=True).items():
         setattr(game, key, value)
     db.commit()
     db.refresh(game)
