@@ -55,3 +55,15 @@ def get_game(game_id: int, db: Session = Depends(get_db)):
     if not game:
         raise HTTPException(status_code=404, detail="Game not found")
     return game
+
+
+@app.put("/games/{game_id}")
+def update_game(game_id: int, updates: GameCreate, db: Session = Depends(get_db)):
+    game = db.query(Game).filter(Game.id == game_id).first()
+    if not game:
+        raise HTTPException(status_code=404, detail="Game not found")
+    for key, value in updates.model_dump().items():
+        setattr(game, key, value)
+    db.commit()
+    db.refresh(game)
+    return game
