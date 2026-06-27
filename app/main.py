@@ -67,3 +67,13 @@ def update_game(game_id: int, updates: GameCreate, db: Session = Depends(get_db)
     db.commit()
     db.refresh(game)
     return game
+
+
+@app.delete("/games/{game_id}")
+def delete_game(game_id: int, db: Session = Depends(get_db)):
+    game = db.query(Game).filter(Game.id == game_id).first()
+    if not game:
+        raise HTTPException(status_code=404, detail="Game not found")
+    db.delete(game)
+    db.commit()
+    return {"detail": "Game deleted"}
